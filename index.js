@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
@@ -5,6 +6,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 app.use(express.static('dist'))
+const Person = require('./models/person')
 
 
 
@@ -18,30 +20,11 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 
 
 
-let persons = [
-    {
-      id: 1,
-      name: "Arto Hellas",
-      number: "040-123456"
-    },
-    {
-      id: 2,
-      name: "Ada Lovelace",
-      number: "39-44-5323523"
-    },
-    {
-        id: 3,
-        name: "Dan Abramov",
-        number: "050-333444"
-      },
-      {
-        id: 4,
-        name: "Mary Poppendick",
-        number: "39-23-6423455"
-      },
-  ]
+
 app.get('/api/persons', (request,response) => {
-    response.json(persons)
+    Person.find({}).then(persons => {
+      response.json(persons)
+    })
 })
 
 app.delete('/api/persons/:id',(request,response) => {
@@ -82,21 +65,14 @@ app.post('/api/persons',(request,response) => {
     })
   }
  
-  const nameAlreadyExist = persons.find((person) => person.name === body.name);
 
-  if(nameAlreadyExist){
-    return response.status(409).json({
-      error: "Person with the same name already exists"
-    })
-  }
-  const person = {
+  const person = new Person ({
     name: body.name,
     number: body.number,
-    id: Math.floor(Math.random() * 1000) + 1
-  }
-  persons =persons.concat(person)
-
-  response.json(person)
+  })
+  person.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
 })
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
