@@ -21,10 +21,11 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 
 
 
-app.get('/api/persons', (request,response) => {
+app.get('/api/persons', (request,response,next) => {
     Person.find({}).then(persons => {
       response.json(persons)
     })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id',(request,response, next) => {
@@ -36,13 +37,14 @@ app.delete('/api/persons/:id',(request,response, next) => {
 
 
 
-app.get('/info', (request,response) => {
+app.get('/info', (request,response, next) => {
   Person.find({}).then(persons => {
   const info = `<p>Phonebook has info for ${persons.length} people</p>
   <p>${new Date()}</p>`
   response.send(info);
  
   })
+  .catch(error => next(error))
 })
 
 app.get('/api/persons/:id',(request, response, next) => {
@@ -56,7 +58,7 @@ app.get('/api/persons/:id',(request, response, next) => {
 })
 
 
-app.post('/api/persons',(request,response) => {
+app.post('/api/persons',(request,response, next) => {
   const body = request.body
   if (!body.name|| !body.number){
     return response.status(400).json({
@@ -72,6 +74,8 @@ app.post('/api/persons',(request,response) => {
   person.save().then(savedPerson => {
     response.json(savedPerson)
   })
+  .catch(error => next(error))
+  console.log(error.response.data)
 })
 
 app.put('/api/persons/:id',(request, response, next) => {
@@ -92,6 +96,7 @@ const unknownEndpoint = (request, response) => {
 }
 
 app.use(unknownEndpoint)
+
 
 
 const PORT = process.env.PORT || 3001
