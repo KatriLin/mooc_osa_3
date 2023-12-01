@@ -12,9 +12,9 @@ const Person = require('./models/person')
 
 morgan.token('body', (request) => {
   if (request.method === 'POST'){
-  return JSON.stringify(request.body)
-}
-return ' '
+    return JSON.stringify(request.body)
+  }
+  return ' '
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
@@ -32,14 +32,14 @@ const errorHandler = (error, request, response, next) => {
 
 
 app.get('/api/persons', (request,response,next) => {
-    Person.find({}).then(persons => {
-      response.json(persons)
-    })
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
     .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id',(request,response, next) => {
-  Person.findByIdAndDelete(request.params.id).then(result => {
+  Person.findByIdAndDelete(request.params.id).then(() => {
     response.status(204).end()
   }).catch(error => next(error))
 })
@@ -49,12 +49,12 @@ app.delete('/api/persons/:id',(request,response, next) => {
 
 app.get('/info', (request,response, next) => {
   Person.find({}).then(persons => {
-  const info = `<p>Phonebook has info for ${persons.length} people</p>
+    const info = `<p>Phonebook has info for ${persons.length} people</p>
   <p>${new Date()}</p>`
-  response.send(info);
- 
+    response.send(info)
+
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 app.get('/api/persons/:id',(request, response, next) => {
@@ -72,11 +72,11 @@ app.post('/api/persons',(request,response, next) => {
   const body = request.body
   if (!body.name|| !body.number){
     return response.status(400).json({
-      error: "Name or/and number is missing"
+      error: 'Name or/and number is missing'
     })
-    .catch(error => next(error))
+      .catch(error => next(error))
   }
- 
+
 
   const person = new Person ({
     name: body.name,
@@ -85,8 +85,8 @@ app.post('/api/persons',(request,response, next) => {
   person.save().then(savedPerson => {
     response.json(savedPerson)
   })
-  .catch(error => next(error))
- 
+    .catch(error => next(error))
+
 })
 
 app.put('/api/persons/:id',(request, response, next) => {
@@ -96,11 +96,11 @@ app.put('/api/persons/:id',(request, response, next) => {
     name: body.name,
     number: body.number,
   }
-  Person.findByIdAndUpdate(request.params.id, person, {new:true})
-  .then(updatedPerson => {
-    response.json(updatedPerson)
-  })
-  .catch(error => next(error))
+  Person.findByIdAndUpdate(request.params.id, person, { new:true })
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(error => next(error))
 })
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
